@@ -1,0 +1,332 @@
+﻿@model IEnumerable<qlthietbi_2.DeviceType>
+@{
+    ViewBag.Title = "ManagerDeviceTypes";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="modal-footer bg-white " style=" margin-left: 850px; margin-bottom:5px;">
+    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#deviceAddDevicemodal">
+        <i class="bi bi-pc-display me-1"></i> Thêm loại thiết bị  <i class="bi bi-plus-circle me-1"></i>
+    </button>
+</div>
+<div class="table-responsive bg-light border-2" style="min-height: 800px; overflow-y: auto; transform: scale(0.8); transform-origin: top left; width: 125.11%; border-radius:7px ">
+    <table class="table table-hover table-bordered align-middle mb-0 ">
+        <thead class="thead-light sticky-top bg- table-bordered table-dark">
+            <tr>
+                <th style="width: 30px;">
+                    @Html.DisplayNameFor(model => model.First().TypeID)
+                </th>
+                <th style="width: 80px;">
+                    @Html.DisplayNameFor(model => model.First().TypeName)
+                </th>
+                <th style="width: 150px;">
+                    @Html.DisplayNameFor(model => model.First().Description)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.TypeID</td>
+                        <td>@item.TypeName</td>
+                        <td class="text-break">@item.Description</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="9" class="text-center">Không có thiết bị nào.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@*modal them loại thiết bị*@
+<div class="modal fade" id="deviceAddDevicemodal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4" style="min-width: 800px; margin: auto;">
+            <div class="modal-header bg-primary text-white py-2 ">
+                <h5 class="modal-title fw-bold fs-6" >
+                    <i class="bi bi-pc-display me-2 "></i>Thêm loại thiết bị
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-3">
+                <div class="mb-3">
+                    <h6 class="text-primary fw-bold border-bottom pb-2 mb-3">Thông tin cơ bản</h6>
+                    <div class="mb-2">
+                        <span class="text-muted small">Tên loại thiết bị</span>
+                        <input type="text" class="form-control" id="editNewTypeName" name="TypeName">
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted small">Mô tả</span>
+                        <input type="text" class="form-control" id="editNewDescription" name="Description">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light py-2 px-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Đóng
+                </button>
+                <button type="button" class="btn btn-success" id="btnSaveNewDeviceType">
+                    <i class="bi bi-check-circle me-1"></i> Lưu thay đổi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal hiển thị chi tiết thiết bị -->
+<div class="modal fade" id="typeDeviceDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="min-width: 800px; margin: auto;">
+            <div class="modal-header bg-primary text-white py-2 ">
+                <h5 class="modal-title fw-bold fs-6" id="deviceDetailModalLabel" style="color: white !important;">
+                    <i class="bi bi-pc-display me-2 text-white"></i>Chi tiết thiết bị
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-3">
+                <div class="mb-3">
+                    <h6 class="text-primary fw-bold border-bottom pb-2 mb-3">Thông tin cơ bản</h6>
+                    <div class="mb-2">
+                        <span class="text-muted small">ID loại thiết bị</span>
+                        <p id="modalTypeID" class="fw-bold text-dark mb-0 "></p>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted small">Tên loại thiết bị</span>
+                        <p id="modalTypeName" class="fw-bold text-dark mb-0 view-mode"></p>
+                        <input type="text" class="form-control edit-mode d-none" id="editTypeName" name="TypeName">
+                    </div>
+                    <div class="mb-2 ">
+                        <span class="text-muted small">Mô tả</span>
+                        <p id="modalDescription" class="fw-bold text-dark mb-0 view-mode"></p>
+                        <textarea class="form-control edit-mode d-none"
+                                  style="width: 100%; max-width: 100%; box-sizing: border-box; min-height: 100px; resize: vertical;"
+                                  id="editDescription"
+                                  name="Description"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light py-2 px-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Đóng
+                </button>
+                <button type="button" class="btn btn-sm btn-primary" id="btnEditDeviceType">
+                    <i class="bi bi-pencil-square me-1"></i> Chỉnh sửa
+                </button>
+                <button type="button" class="btn btn-success d-none" id="btnSaveChanges">
+                    <i class="bi bi-check-circle me-1"></i> Lưu thay đổi
+                </button>
+                <button type="button" class="btn btn-sm btn-danger" id="btnDeleteDeviceType">
+                    <i class="bi bi-trash me-1"></i> Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<style>
+    .modal-header .modal-title {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        color: white !important;
+    }
+
+    .bg-gradient-primary,
+    .bg-gradient-primary * {
+        color: white !important;
+    }
+
+    #btnDeleteDevice {
+        margin-left: auto; /* Đẩy nút xóa về phía bên phải */
+    }
+
+    .modal-footer {
+        justify-content: space-between; /* Căn đều các nút */
+    }
+    /* Đảm bảo modal hiển thị đúng */
+    .modal {
+        z-index: 1060;
+    }
+
+    /* Hiệu ứng khi hover vào dòng */
+    .table-hover tbody tr:hover {
+        cursor: pointer;
+        background-color: rgba(0,0,0,0.05);
+    }
+    /* Thêm vào phần style */
+    #deviceDetailModal .modal-body {
+        padding: 1rem; /* Giảm padding */
+    }
+
+    #deviceDetailModal .detail-card {
+        padding: 0.75rem; /* Giảm padding thẻ */
+    }
+
+    #deviceDetailModal .modal-footer {
+        padding: 0.75rem 1rem; /* Giảm padding footer */
+    }
+
+    #deviceDetailModal .modal-header {
+        padding: 0.75rem 1rem; /* Giảm padding header */
+    }
+    /* Tự động điều chỉnh chiều cao textarea */
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical; /* Cho phép chỉ resize theo chiều dọc */
+        overflow-y: hidden; /* Ẩn thanh scroll khi chưa cần */
+    }
+
+    /* Tự động mở rộng khi nội dung tăng */
+    textarea.autosize {
+        transition: height 0.2s;
+    }
+</style>
+<script>
+    $('table tbody tr').click(function () {
+        // Lấy dữ liệu từ dòng được click
+        var TypeID = $(this).find('td:eq(0)').text();
+        var TypeName = $(this).find('td:eq(1)').text();
+        var Description = $(this).find('td:eq(2)').text();
+
+        // Điền dữ liệu vào modal
+        $('#modalTypeID').text(TypeID);
+        $('#modalTypeName').text(TypeName);
+        $('#modalDescription').text(Description);
+
+        var modal = new bootstrap.Modal(document.getElementById('typeDeviceDetailModal'));
+        modal.show();
+});
+    $('#btnEditDeviceType').click(function () {
+        $('.view-mode').addClass('d-none');
+        $('.edit-mode').removeClass('d-none');
+
+        $('#editTypeName').val($('#modalTypeName').text().trim());
+        $('#editDescription').val($('#modalDescription').text().trim());
+
+        $(this).addClass('d-none');
+        $('#btnSaveChanges').removeClass('d-none');
+        $('#btnDeleteDeviceType').addClass('d-none');
+
+});
+    $('#btnSaveChanges').click(function() {
+    const typeID = $('#modalTypeID').text().trim();
+    const typeName = $('#editTypeName').val(); // Lấy từ input edit
+    const description = $('#editDescription').val(); // Lấy từ input edit
+    console.log("Debug:", { typeID, typeName, description });
+
+    const form = $('<form>')
+        .attr('method', 'post')
+        .attr('action', '@Url.Action("Edit_DeviceTypes", "Admin")')
+        .append($('<input>').attr({ type: 'hidden', name: 'TypeID', value: typeID }))
+        .append($('<input>').attr({ type: 'hidden', name: 'TypeName', value: typeName }))
+        .append($('<input>').attr({ type: 'hidden', name: 'Description', value: description }))
+        .append($('input[name="__RequestVerificationToken"]').clone())
+        .appendTo('body');
+
+    if (confirm('Bạn muốn thay thay đổi ?')) {
+        form.submit();
+
+        form.remove();
+        $(this).addClass('d-none');
+        $('#btnEditDevice').removeClass('d-none');
+    }
+    });
+
+
+    $('#btnDeleteDeviceType').click(function() {
+        const typeID = $('#modalTypeID').text().trim();
+
+        if (!typeID) {
+            alert("Lỗi: Không tìm thấy ID loại thiết bị!");
+            return;
+        }
+
+        if (confirm("Bạn có chắc chắn muốn xóa loại thiết bị này?")) {
+            $.ajax({
+                url: '@Url.Action("DeleteDeviceType", "Admin")',
+                type: 'POST',
+                data: {
+                    typeID: typeID,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload(); // Tải lại trang sau khi xóa
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert("Lỗi khi xóa loại thiết bị!");
+                }
+            });
+        }
+    });
+    $('#btnSaveNewDeviceType').click(function() {
+        const newTypeName = $('#editNewTypeName').val().trim();
+        const newDescription = $('#editNewDescription').val().trim();
+        if (!newTypeName) {
+            alert("Vui lòng nhập tên loại thiết bị!");
+            return;
+        }
+        if (confirm("Bạn muốn thêm loại thiết bị này?")) {
+            $.ajax({
+                url: '@Url.Action("AddDeviceType", "Admin")',
+                type: 'POST',
+                data: {
+                    typeName: newTypeName,
+                    description: newDescription,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload(); 
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert("Lỗi khi thêm loại thiết bị!");
+                }
+            });
+        }
+    });
+
+    // Tự động điều chỉnh chiều cao textarea
+    function autoResizeTextarea() {
+        const textareas = document.querySelectorAll('textarea.autosize');
+        textareas.forEach(textarea => {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        });
+    }
+
+    // Áp dụng cho textarea mô tả
+    $('#editDescription')
+        .addClass('autosize')
+        .on('input', function () {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+    // Khi bật chế độ edit, điều chỉnh lại textarea
+    $('#btnEditDeviceType').click(function () {
+        setTimeout(autoResizeTextarea, 10);
+    });
+</script>

@@ -1,0 +1,308 @@
+﻿@model IEnumerable<qlthietbi_2.ViewModels.DeviceViewModel>
+
+@{
+    ViewBag.Title = "Danh sách thiết bị";
+    var searchString = ViewBag.CurrentFilter as string;
+}
+
+<div class="container-fluid py-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+            <h2 class="mb-0 text-dark">DANH SÁCH THIẾT BỊ</h2>
+        </div>
+
+        <!-- Thông báo thành công hoặc lỗi -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                @if (TempData["ValidationErrors"] != null)
+                {
+                    var errors = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(TempData["ValidationErrors"].ToString());
+                    <ul class="mb-0">
+                        @foreach (var error in errors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                }
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- FORM TÌM KIẾM -->
+        <div class="card-body p-4">
+            @using (Html.BeginForm("Index", "Device", FormMethod.Get, new { @class = "row g-3 mb-4" }))
+            {
+                <div class="col-md-4 col-lg-8">
+                    <div class="input-group">
+                        <input type="text" name="searchString" value="@searchString"
+                               class="form-control border-gray w-100" placeholder="Tìm theo tên thiết bị..." />
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="bi bi-search me-1"></i> Tìm
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i> Xóa
+                        </a>
+                    </div>
+                </div>
+
+            }
+
+
+            <!-- BẢNG DỮ LIỆU -->
+            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                <table class="table table-hover table-bordered align-middle mb-0">
+                    <thead class="thead-light sticky-top bg- table-bordered table-dark">
+                        <tr>
+                            <th style="width: 80px;">
+                                @Html.ActionLink(
+                                    "ID" + (ViewBag.CurrentSort == "id_desc" ? " ↑" : ViewBag.CurrentSort == "" ? " ↓" : " ↓"),
+                                    "Index",
+                                    new { sortOrder = ViewBag.DeviceIDSortParam, searchString = ViewBag.CurrentFilter },
+                                    new { @class = "text-decoration-none text-light" })
+                            </th>
+                            <th style="width: 150px;">
+                                @Html.ActionLink(
+                                    "Tên thiết bị" + (ViewBag.CurrentSort == "devicename_desc" ? " ↑" : ViewBag.CurrentSort == "DeviceName" ? " ↓" : " ↓"),
+                                    "Index",
+                                    new { sortOrder = ViewBag.DeviceNameSortParam, searchString = ViewBag.CurrentFilter },
+                                    new { @class = "text-decoration-none text-light" })
+                            </th>
+                            <th>@Html.DisplayNameFor(model => model.First().Manufacturer)</th>
+                            <th>@Html.DisplayNameFor(model => model.First().Model)</th>
+                            <th style="width: 120px;">@Html.DisplayNameFor(model => model.First().PurchaseDate)</th>
+                            <th style="width: 120px;">@Html.DisplayNameFor(model => model.First().WarrantyUntil)</th>
+                            <th style="width: 100px;">
+                                @Html.ActionLink(
+                                    "Trạng thái" + (ViewBag.CurrentSort == "status_desc" ? " ↑" : ViewBag.CurrentSort == "Status" ? " ↓" : " ↓"),
+                                    "Index",
+                                    new { sortOrder = ViewBag.StatusSortParam, searchString = ViewBag.CurrentFilter },
+                                    new { @class = "text-decoration-none text-light" })
+                            </th>
+
+                            <th>@Html.DisplayNameFor(model => model.First().Notes)</th>
+                            <th style="width: 150px;">
+                                @Html.ActionLink(
+                                    "Loại thiết bị" + (ViewBag.CurrentSort == "devicetype_desc" ? " ↑" : ViewBag.CurrentSort == "DeviceType" ? " ↓" : " ↓"),
+                                    "Index",
+                                    new { sortOrder = ViewBag.DeviceTypeSortParam, searchString = ViewBag.CurrentFilter },
+                                    new { @class = "text-decoration-none text-light" })
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.DeviceID</td>
+                                    <td class="text-break">@item.DeviceName</td>
+                                    <td class="text-break">@item.Manufacturer</td>
+                                    <td class="text-break">@item.Model</td>
+                                    <td>@(item.PurchaseDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                    <td>@(item.WarrantyUntil?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                    <td>
+                                        <span class="badge bg-@(item.Status == "Hoạt động" ? "success" : "secondary")">
+                                            @item.Status
+                                        </span>
+                                    </td>
+                                    <td class="text-break">@item.Notes</td>
+                                    <td class="text-break">@item.TypeName</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center">Không có thiết bị nào.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal hiển thị chi tiết thiết bị -->
+<div class="modal fade" id="deviceDetailModal" tabindex="-1" aria-labelledby="deviceDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-gradient-primary text-white">
+                <h5 class="modal-title fw-bold" id="deviceDetailModalLabel">
+                    <i class="bi bi-pc-display me-2"></i>Chi tiết thiết bị
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="detail-card bg-light p-3 rounded-3 h-100">
+                            <h6 class="text-primary mb-3 fw-bold border-bottom pb-2">Thông tin cơ bản</h6>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">ID thiết bị</label>
+                                <p id="modalDeviceId" class="fw-bold text-dark mb-0"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Tên thiết bị</label>
+                                <p id="modalDeviceName" class="fw-bold text-dark mb-0"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Loại thiết bị</label>
+                                <p id="modalTypeName" class="fw-bold text-dark mb-0"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Trạng thái</label>
+                                <p id="modalStatus" class="mb-0">
+                                    <span class="badge rounded-pill"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-card bg-light p-3 rounded-3 h-100">
+                            <h6 class="text-primary mb-3 fw-bold border-bottom pb-2">Thông số kỹ thuật</h6>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Nhà sản xuất</label>
+                                <p id="modalManufacturer" class="fw-bold text-dark mb-0"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Model</label>
+                                <p id="modalModel" class="fw-bold text-dark mb-0"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Ngày mua</label>
+                                <p id="modalPurchaseDate" class="fw-bold text-dark mb-0"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Bảo hành đến</label>
+                                <p id="modalWarrantyUntil" class="fw-bold text-dark mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 detail-card bg-light p-3 rounded-3">
+                    <h6 class="text-primary mb-3 fw-bold border-bottom pb-2">Thông tin bổ sung</h6>
+                    <div class="mb-2">
+                        <label class="form-label text-muted small mb-1">Ghi chú</label>
+                        <p id="modalNotes" class="fw-bold text-dark mb-0"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Đóng
+                </button>
+           
+            </div>
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<style>
+    
+
+    .modal-title {
+        display: block !important;
+        visibility: visible !important;
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+    }
+
+    .detail-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .detail-card:hover {
+        box-shadow: 0 0.15rem 0.5rem rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .modal-content {
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #eee;
+    }
+</style>
+@section Scripts {
+    <!-- Chỉ để lại nếu vẫn cần validate form ở nơi khác -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Xử lý click vào dòng trong bảng
+            $('table tbody tr').click(function () {
+                // Lấy dữ liệu từ dòng được click
+                var deviceId = $(this).find('td:eq(0)').text();
+                var deviceName = $(this).find('td:eq(1)').text();
+                var manufacturer = $(this).find('td:eq(2)').text();
+                var model = $(this).find('td:eq(3)').text();
+                var purchaseDate = $(this).find('td:eq(4)').text();
+                var warrantyUntil = $(this).find('td:eq(5)').text();
+                var status = $(this).find('td:eq(6)').text().trim();
+                var notes = $(this).find('td:eq(7)').text();
+                var typeName = $(this).find('td:eq(8)').text();
+
+                // Điền dữ liệu vào modal
+                $('#modalDeviceId').text(deviceId);
+                $('#modalDeviceName').text(deviceName);
+                $('#modalManufacturer').text(manufacturer);
+                $('#modalModel').text(model);
+                $('#modalPurchaseDate').text(purchaseDate);
+                $('#modalWarrantyUntil').text(warrantyUntil);
+                $('#modalStatus').text(status);
+                $('#modalNotes').text(notes);
+                $('#modalTypeName').text(typeName);
+
+                // Thêm class badge cho trạng thái nếu cần
+                $('#modalStatus').removeClass('badge bg-success bg-secondary');
+                if (status === 'Hoạt động') {
+                    $('#modalStatus').addClass('badge bg-success');
+                } else {
+                    $('#modalStatus').addClass('badge bg-secondary');
+                }
+
+                // Hiển thị modal
+                var modal = new bootstrap.Modal(document.getElementById('deviceDetailModal'));
+                modal.show();
+            });
+
+            // Thêm hiệu ứng hover cho các dòng
+            $('table tbody tr').hover(
+                function () {
+                    $(this).css('cursor', 'pointer');
+                    $(this).addClass('table-active');
+                },
+                function () {
+                    $(this).removeClass('table-active');
+                }
+            );
+        });
+    </script>
+
+}
+

@@ -1,0 +1,230 @@
+﻿@model IEnumerable<qlthietbi_2.Account>
+@{
+    ViewBag.Title = "ManagerAccount";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+}
+
+
+<div class="table-responsive bg-light" style="min-height: auto; overflow-y: auto; transform: scale(0.8); transform-origin: top left; width: 125.11%; border-radius:7px ">
+    <table class="table table-hover table-bordered align-middle mb-0 border-2 ">
+        <thead class="thead-light sticky-top bg- table-bordered table-dark border-2 ">
+            <tr>
+                <th style="width: 30px;">
+                    <p>ID</p>
+                </th>
+                <th style="width: 30px;">
+                    <p>Tên người dùng</p>
+                </th>
+                <th style="width: 50px;">
+                    <p>Email</p>
+                </th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.AccountID</td>
+                        <td>@item.Username</td>
+                        <td>@item.Email</td>
+                        <td class="d-none">@item.Password</td>
+                        <td class="d-none">@item.Role</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="9" class="text-center">Không có thiết bị nào.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="userDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="min-width: 800px; margin: auto;">
+            <div class="modal-header bg-primary text-white py-2 ">
+                <h5 class="modal-title fw-bold fs-6" id="deviceDetailModalLabel" style="color: white !important;">
+                    <i class="bi bi-pc-display me-2 text-white"></i>Chi tiết tài khoản
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-3">
+                <div class="row">
+                    <!-- Thêm row để tạo layout 2 cột -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h6 class="text-primary fw-bold border-bottom pb-2 mb-3">Thông tin cơ bản</h6>
+                            <div class="mb-2">
+                                <span class="text-muted small">ID tài khoản</span>
+                                <p id="modalAccountID" class="fw-bold text-dark mb-0"></p>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted small">Tên người dùng</span>
+                                <p id="modalUser" class="fw-bold text-dark mb-0"></p>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted small">Email</span>
+                                <p id="modalEmail" class="fw-bold text-dark mb-0 "></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h6 class="text-primary fw-bold border-bottom pb-2 mb-3">Thông tin bảo mật</h6>
+                            <div class="mb-2">
+                                <span class="text-muted small">Password</span>
+                                <div class="d-flex align-items-center">
+                                    <!-- Hiển thị password (ẩn ban đầu) -->
+                                    <p id="modalPassword" class="fw-bold text-dark mb-0">•••••••••••</p>
+
+                                    <!-- Checkbox hiển thị password -->
+                                    <div class="form-check ms-3" >
+                                        <input type="checkbox" class="form-check-input" style="margin-left:100px" id="showPasswordCheckbox">
+                                        <label class="form-check-label small" for="showPasswordCheckbox">Hiện password</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted small">Role</span>
+                                <p id="modalRole" class="fw-bold text-dark mb-0 "></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light py-2 px-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Đóng
+                </button>
+
+                <button type="button" class="btn btn-sm btn-danger" id="btnDeleteAccount">
+                    <i class="bi bi-trash me-1"></i> Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<style>
+    .modal-header .modal-title {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        color: white !important;
+    }
+
+    .bg-gradient-primary,
+    .bg-gradient-primary * {
+        color: white !important;
+    }
+
+    #btnDeleteDevice {
+        margin-left: auto; 
+    }
+
+    .modal-footer {
+        justify-content: space-between; 
+    }
+    .modal {
+        z-index: 1060;
+    }
+
+    .table-hover tbody tr:hover {
+        cursor: pointer;
+        background-color: rgba(0,0,0,0.05);
+    }
+    #modalPassword {
+        transition: opacity 0.3s ease;
+    }
+
+    #showPasswordCheckbox:checked ~ label {
+        color: var(--bs-primary);
+    }
+
+</style>
+<script>
+    $('table tbody tr').click(function () {
+        // Lấy dữ liệu từ dòng được click
+        var AccountID = $(this).find('td:eq(0)').text();
+        var User = $(this).find('td:eq(1)').text();
+        var Email = $(this).find('td:eq(2)').text();
+        var Password = $(this).find('td:eq(3)').text();
+        var Role = $(this).find('td:eq(4)').text();
+        
+        $('#modalAccountID').text(AccountID);
+        $('#modalUser').text(User);
+        $('#modalEmail').text(Email);
+        $('#modalPassword').text(Password);
+        $('#modalRole').text(Role);
+
+        var modal = new bootstrap.Modal(document.getElementById('userDetailModal'));
+        modal.show();
+});
+
+
+
+    $('#btnDeleteAccount').click(function() {
+        const AccountID = $('#modalAccountID').text().trim();
+
+        if (!AccountID) {
+            alert("Lỗi: Không tìm thấy ID người dùng!");
+            return;
+        }
+
+        if (confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
+            $.ajax({
+                url: '@Url.Action("DeleteAccount", "Admin")',
+                type: 'POST',
+                data: {
+                    AccountID: AccountID,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload(); 
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert("Lỗi khi xóa người dùng!");
+                }
+            });
+        }
+    });
+    // Biến lưu trữ password thực
+    let realPassword = '';
+
+    // Khi click vào dòng table
+    $('table tbody tr').click(function () {
+        // Lấy password thực (giả sử nằm ở cột thứ 4)
+        realPassword = $(this).find('td:eq(3)').text();
+
+        // Reset về trạng thái ẩn khi mở modal mới
+        $('#modalPassword').text('••••••••');
+        $('#showPasswordCheckbox').prop('checked', false);
+    });
+
+    // Xử lý sự kiện checkbox
+    $('#showPasswordCheckbox').change(function () {
+        if ($(this).is(':checked')) {
+            $('#modalPassword').text(realPassword); // Hiển thị password thực
+        } else {
+            $('#modalPassword').text('••••••••'); // Ẩn password
+        }
+    });
+
+
+</script>

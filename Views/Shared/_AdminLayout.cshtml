@@ -1,0 +1,174 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section AdminContent {
+    <div class="admin-container">
+        <div class="floating-sidebar">
+            <div class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="bi bi-chevron-double-left"></i>
+            </div>
+            <div class="sidebar-header p-3">
+                <h5 class="mb-0 text-center">QUẢN TRỊ</h5>
+            </div>
+            <ul class="nav flex-column px-2">
+                <li class="nav-item active">
+                    <a class="nav-link" href="@Url.Action("ManagerDevices", "Admin")">
+                        <i class="bi bi-pc-display-horizontal me-2"></i>
+                        <span class="menu-text">Devices</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="@Url.Action("ManagerDeviceTypes", "Admin")">
+                        <i class="bi bi-collection me-2"></i>
+                        <span class="menu-text">Device Types</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="@Url.Action("ManagerAccount", "Admin")">
+                        <i class="bi bi-person-fill me-2"></i>
+                        <span class="menu-text">Users</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="@Url.Action("ManagerLoginHistory", "Admin")">
+                        <i class="bi bi-clock-history me-2"></i>
+                        <span class="menu-text">Lịch sử đăng nhập</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Expanded Main Content -->
+        <div class="main-content">
+            <div class="content-body p-4">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    /* Base layout */
+    .admin-container {
+        display: flex;
+        min-height: 100vh;
+        background-color: white;
+    }
+
+    /* Floating Sidebar */
+    .floating-sidebar {
+        position: fixed;
+        left: 50px;
+        top: 100px;
+        bottom: 50px;
+        width: 250px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    /* Sidebar toggle button */
+    .sidebar-toggle {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        cursor: pointer;
+        color: #6c757d;
+        z-index: 1001;
+    }
+
+    /* Collapsed state */
+    .floating-sidebar.collapsed {
+        width: 70px;
+    }
+
+        .floating-sidebar.collapsed .menu-text,
+        .floating-sidebar.collapsed .sidebar-header h5 {
+            display: none;
+        }
+
+        .floating-sidebar.collapsed .nav-link {
+            justify-content: center;
+        }
+
+        .floating-sidebar.collapsed .bi-chevron-double-left {
+            transform: rotate(180deg);
+        }
+
+    /* Sidebar content */
+    .sidebar-header {
+        padding-top: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .nav-item {
+        margin: 5px 0;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        color: #495057;
+    }
+
+    .nav-item.active .nav-link {
+        background-color: #e9f5ff;
+        color: #0d6efd;
+    }
+
+    /* Main content */
+    .main-content {
+        margin-left: 200px;
+        padding: 12px;
+        width: calc(100% - 200px);
+        transition: all 0.3s ease;
+    }
+
+    /* Khi sidebar thu nhỏ */
+    .sidebar-collapsed .main-content {
+        margin-left: 60px; /* Kích thước sidebar thu nhỏ */
+        width: calc(100% - 60px);
+    }
+
+    .floating-sidebar.collapsed ~ .main-content {
+        margin-left: 110px; /* Collapsed sidebar width + gap */
+    }
+
+    .content-body {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        min-height: calc(100vh - 100px);
+        padding: 25px;
+    }
+
+    /* Responsive */
+    @@media (max-width: 992px) {
+        .floating-sidebar {
+            left: 10px;
+            right: 10px;
+            top: 10px;
+            width: auto;
+        }
+
+        .main-content {
+            margin-left: 0;
+            padding-top: 80px;
+        }
+    }
+
+</style>
+
+<script>
+    function toggleSidebar() {
+        document.querySelector('.floating-sidebar').classList.toggle('collapsed');
+    }
+</script>
+@RenderSection("Scripts", required: false)

@@ -1,0 +1,126 @@
+﻿@{
+    ViewBag.Title = "About";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">THÔNG TIN ĐỀ TÀI</h2>
+
+    <!-- Project Information -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3><i class="fas fa-laptop-code me-2"></i>THÔNG TIN ĐỀ TÀI</h3>
+        </div>
+
+        <div class="card-body">
+            <div class=" card-header " style="background-color:white;">
+                <h5 class="card-title" >ĐỀ TÀI: HỆ THỐNG QUẢN LÝ THIẾT BỊ</h5>
+                <p class="card-text" style="font-size: 18px;">
+                    Đề tài nghiên cứu xây dựng hệ thống quản lý thiết bị tự động hóa trong trường học/doanh nghiệp,
+                    giúp quản lý, theo dõi và bảo trì thiết bị hiệu quả.
+                </p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="text-primary">Mục tiêu đề tài:</h4>
+                    <ul class="list-group list-group-flush" style=" text-align:left">
+                        <li class="list-group-item">Xây dựng hệ thống quản lý thiết bị tự động hóa</li>
+                        <li class="list-group-item">Theo dõi thông tin và trạng thái thiết bị</li>
+                        <li class="list-group-item">Quản lý lịch sử bảo trì, sửa chữa thiết bị</li>
+                        <li class="list-group-item">Phân quyền giữa Admin và User</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="text-success">Công nghệ sử dụng:</h4>
+                    <div class="tech-badges">
+                        <span class="badge bg-danger me-2 mb-2">ASP.NET MVC</span>
+                        <span class="badge bg-info me-2 mb-2">C#</span>
+                        <span class="badge bg-secondary me-2 mb-2">SQL Server</span>
+                        <span class="badge bg-warning text-dark me-2 mb-2">Entity Framework</span>
+                        <span class="badge bg-primary me-2 mb-2">Bootstrap 5</span>
+                        <span class="badge bg-success me-2 mb-2">Chart.js</span>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Members -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h4><i class="fas fa-users"></i> Thành viên thực hiện</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>STT</th>
+                            <th>Họ và tên</th>
+                            <th>Mã số sinh viên</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Nguyễn Trường Thịnh</td>
+                            <td>6351030071</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Võ Anh Công Huy</td>
+                            <td>6351030031</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Vũ Đức Thịnh</td>
+                            <td>6351030070</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Lê Đặng Hoàng Phúc</td>
+                            <td>6351030055</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Võ Nguyễn Toàn Thắng</td>
+                            <td>6351030067</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructor -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h4><i class="fas fa-chalkboard-teacher"></i> Giáo viên hướng dẫn</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-10">
+                    <h5>ThS.Võ Văn Ân</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+        .table th {
+            background-color: #f8f9fa;
+        }
+    </style>
+}

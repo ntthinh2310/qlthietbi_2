@@ -1,0 +1,55 @@
+﻿@model IEnumerable<qlthietbi_2.ViewModels.DeviceViewModel>
+
+@{
+    ViewBag.Title = "ADMIN";
+    var searchString = ViewBag.CurrentFilter as string;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        margin: 0;
+        padding: 0;
+    }
+
+    
+
+    h1 {
+        color: #333;
+    }
+
+    ul {
+        line-height: 1.8;
+    }
+
+    .admin, .user {
+        margin-top: 20px;
+    }
+
+    .role-title {
+        font-weight: bold;
+        font-size: 18px;
+        color: #0066cc;
+    }
+</style>
+<h1>Giới thiệu Trang Quản Trị (Admin)</h1>
+<p>Trang quản trị cho phép quản lý toàn bộ hệ thống bao gồm thiết bị, loại thiết bị và tài khoản người dùng.</p>
+
+<div class="admin">
+    <div class="role-title">Quyền của Admin:</div>
+    <ul>
+        <li>Thêm, sửa, xóa <strong>Devices</strong> (thiết bị)</li>
+        <li>Thêm, sửa, xóa <strong>Device Types</strong> (loại thiết bị)</li>
+        <li>Xóa <strong>Accounts</strong> (tài khoản người dùng)</li>
+        <li>Xem danh sách tất cả các thiết bị, loại thiết bị, và người dùng</li>
+    </ul>
+</div>
+
+<div class="user">
+    <div class="role-title">Quyền của User (Người dùng thường):</div>
+    <ul>
+        <li>Chỉ được <strong>xem danh sách</strong> thiết bị, loại thiết bị và tài khoản</li>
+        <li>Không có quyền thêm, sửa, hay xóa</li>
+    </ul>
+</div>

@@ -1,0 +1,257 @@
+﻿@model qlthietbi_2.ViewModels.AccountViewModel
+
+@{
+    ViewBag.Title = "Chỉnh sửa thông tin cá nhân";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">@ViewBag.Title</h4>
+                </div>
+
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    @using (Html.BeginForm("EditProfile", "Account", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate", autocomplete = "off" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.AccountID)
+
+                        <!-- Thông báo lỗi tổng hợp -->
+                        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+                        <!-- Thông tin tài khoản -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3">Thông tin tài khoản</h5>
+
+                            <div class="mb-3">
+                                @Html.LabelFor(m => m.Username, new { @class = "form-label" })
+                                @Html.TextBoxFor(m => m.Username, new { @class = "form-control", @readonly = "readonly", autocomplete = "username" })
+                                <small class="text-muted">Tên đăng nhập không thể thay đổi</small>
+                            </div>
+
+                            <div class="mb-3">
+                                @Html.LabelFor(m => m.Email, new { @class = "form-label" })
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Nhập email mới", autocomplete = "email" })
+                                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="mb-3">
+                                @Html.LabelFor(m => m.Role, new { @class = "form-label" })
+                                @Html.TextBoxFor(m => m.Role, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+
+                        <!-- Đổi mật khẩu -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3">Đổi mật khẩu</h5>
+                            <p class="text-muted">Chỉ điền các trường bên dưới nếu muốn thay đổi mật khẩu</p>
+
+                            <div class="mb-3">
+                                @Html.LabelFor(m => m.Password, new { @class = "form-label" })
+                                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Nhập mật khẩu mới", autocomplete = "new-password" })
+                                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="mb-3">
+                                @Html.LabelFor(m => m.ConfirmPassword, new { @class = "form-label" })
+                                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Xác nhận mật khẩu mới", autocomplete = "new-password" })
+                                @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <!-- Nút submit -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="@Url.Action("Profile", "Account")" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    }
+                </div>
+
+                <!-- Phần xóa tài khoản -->
+                <div class="card-footer bg-light border-top">
+                    <div class="danger-zone">
+                        <h5 class="text-danger mb-3"><i class="fas fa-exclamation-triangle"></i> Vùng nguy hiểm</h5>
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                                @TempData["ErrorMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        <!-- Modal xác nhận xóa -->
+                        <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-danger text-white">
+                                        <h5 class="modal-title">Xác nhận xóa tài khoản</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Bạn có chắc chắn muốn xóa tài khoản của mình? Hành động này không thể hoàn tác.</p>
+                                        <p>Tất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn.</p>
+
+                                        <div class="mb-3">
+                                            <label for="confirmPassword" class="form-label">Nhập mật khẩu để xác nhận:</label>
+                                            <input type="password" class="form-control" id="confirmPassword" required>
+                                            <div id="passwordError" class="text-danger d-none"></div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                                        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Xác nhận xóa</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning mb-0">
+                            <p class="mb-2">Khi xóa tài khoản, mọi thông tin của bạn sẽ bị xóa vĩnh viễn và không thể khôi phục.</p>
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                <i class="fas fa-trash-alt"></i> Xóa tài khoản của tôi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/bootstrap")
+
+    <style>
+        .danger-zone {
+            border-left: 4px solid #dc3545;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        #confirmDeleteBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .is-invalid {
+            border-color: #dc3545;
+            background-image: none;
+        }
+
+        .was-validated .form-control:invalid, .form-control.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+    </style>
+
+    <script>
+        $('#confirmDeleteBtn').click(function() {
+    var password = $('#confirmPassword').val();
+    var $passwordError = $('#passwordError');
+    var $confirmBtn = $(this);
+
+    $passwordError.addClass('d-none');
+
+    if (!password) {
+        $passwordError.text('Vui lòng nhập mật khẩu').removeClass('d-none');
+        return;
+    }
+
+    $confirmBtn.prop('disabled', true).text('Đang xử lý...');
+
+    $.ajax({
+        url: '@Url.Action("VerifyPassword", "Account")',
+        type: 'POST',
+        data: {
+            password: password,
+            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+        },
+        success: function(response) {
+            if (response.success) {
+                $.ajax({
+                    url: '@Url.Action("DeleteAccount", "Account")',
+                    type: 'POST',
+                    data: {
+                        password: password,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(deleteResponse) {
+                        if (deleteResponse.success) {
+                            $('#deleteAccountModal').modal('hide');
+
+                            alert('Tài khoản đã được xóa thành công!');
+
+                            setTimeout(function() {
+                                window.location.href = '@Url.Action("Login", "Account")';
+                            }, 1000);
+                        } else {
+                            // Hiển thị lỗi từ server
+                            $passwordError.text(deleteResponse.message || 'Không thể xóa tài khoản').removeClass('d-none');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('Delete Error details:', xhr.responseText);
+
+                        try {
+                            var errorResponse = JSON.parse(xhr.responseText);
+                            $passwordError.text(errorResponse.message || 'Đã xảy ra lỗi khi xóa tài khoản').removeClass('d-none');
+                        } catch (e) {
+                            $passwordError.text('Đã xảy ra lỗi khi xóa tài khoản').removeClass('d-none');
+                        }
+                    },
+                    complete: function() {
+                        $confirmBtn.prop('disabled', false).text('Xác nhận xóa');
+                    }
+                });
+            } else {
+                $passwordError.text(response.message || 'Mật khẩu không đúng').removeClass('d-none');
+                $confirmBtn.prop('disabled', false).text('Xác nhận xóa');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.log('Verify Error details:', xhr.responseText);
+            $passwordError.text('Đã xảy ra lỗi khi kiểm tra mật khẩu').removeClass('d-none');
+            $confirmBtn.prop('disabled', false).text('Xác nhận xóa');
+        }
+    });
+
+
+        $('#deleteAccountModal').on('hidden.bs.modal', function() {
+            $('#confirmPassword').val('');
+            $('#passwordError').addClass('d-none');
+            $('#confirmDeleteBtn').prop('disabled', false).text('Xác nhận xóa');
+        });
+
+
+
+        });
+    </script>
+}

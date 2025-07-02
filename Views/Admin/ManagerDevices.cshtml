@@ -1,0 +1,631 @@
+﻿@model IEnumerable<qlthietbi_2.ViewModels.DeviceViewModel>
+@{
+    ViewBag.Title = "ManagerDevices";
+    var searchString = ViewBag.CurrentFilter as string;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+@Html.AntiForgeryToken()
+<div class="container-fluid py-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+            <h2 class="mb-0 text-dark">Danh sách thiết bị</h2>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                @if (TempData["ValidationErrors"] != null)
+                {
+                    var errors = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(TempData["ValidationErrors"].ToString());
+                    <ul class="mb-0">
+                        @foreach (var error in errors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                }
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- FORM TÌM KIẾM -->
+        <div class="card-body p-4">
+            @using (Html.BeginForm("ManagerDevices", "Admin", FormMethod.Get, new { @class = "row g-3 mb-4" }))
+            {
+                <div class="col-md-4 col-lg-8">
+                    <div class="input-group">
+                        <input type="text" name="searchString" value="@searchString"
+                               class="form-control border-gray w-100" placeholder="Tìm theo tên thiết bị..." />
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="bi bi-search me-1"></i> Tìm
+                        </button>
+                        <a href="@Url.Action("ManagerDevices")" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i> Xóa
+                        </a>
+                    </div>
+                </div>
+
+            }
+            @*nut them thiet bi*@
+            <div class="modal-footer bg-white " style=" margin-left: 800px; margin-bottom:5px;">
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#NewDevicemodal">
+                    <i class="bi bi-pc-display me-1"></i> Thêm thiết bị  <i class="bi bi-plus-circle me-1"></i>
+                </button>
+            </div>
+
+            <!-- BẢNG DỮ LIỆU -->
+            <div class="table-responsive" style="max-height: 600px; overflow-y: auto; transform: scale(0.8); transform-origin: top left; width: 125.11%; border-radius: 7px">
+                <table class="table table-hover table-bordered align-middle mb-0 border-2">
+                    <thead class="thead-light sticky-top bg- table-bordered table-dark">
+                        <tr>
+                            <th style="width: 80px;">
+                                @Html.ActionLink(
+                                    "ID" + (ViewBag.CurrentSort == "id_desc" ? " ↑" : ViewBag.CurrentSort == "" ? " ↓" : " ↓"),
+                                    "ManagerDevices",
+                                    new { sortOrder = ViewBag.DeviceIDSortParam, searchString = ViewBag.CurrentFilter },
+                                    new { @class = "text-decoration-none text-light" })
+                            </th>
+                            <th style="width: 150px;">
+                                @Html.ActionLink(
+                                    "Tên thiết bị" + (ViewBag.CurrentSort == "devicename_desc" ? " ↑" : ViewBag.CurrentSort == "DeviceName" ? " ↓" : " ↓"),
+                                    "ManagerDevices",
+                                    new { sortOrder = ViewBag.DeviceNameSortParam, searchString = ViewBag.CurrentFilter },
+                                    new { @class = "text-decoration-none text-light" })
+                            </th>
+                            <th>@Html.DisplayNameFor(model => model.First().Manufacturer)</th>
+                            <th>@Html.DisplayNameFor(model => model.First().Model)</th>
+                            <th style="width: 120px;">@Html.DisplayNameFor(model => model.First().PurchaseDate)</th>
+                            <th style="width: 120px;">@Html.DisplayNameFor(model => model.First().WarrantyUntil)</th>
+                            <th style="width: 100px;">
+                                @Html.ActionLink(
+                                    "Trạng thái" + (ViewBag.CurrentSort == "status_desc" ? " ↑" : ViewBag.CurrentSort == "Status" ? " ↓" : " ↓"),
+                                    "ManagerDevices",
+                                    new { sortOrder = ViewBag.StatusSortParam, searchString = ViewBag.CurrentFilter },
+                                    new { @class = "text-decoration-none text-light" })
+                            </th>
+
+                            <th>@Html.DisplayNameFor(model => model.First().Notes)</th>
+                            <th style="width: 150px;">
+                                @Html.ActionLink(
+                                    "Loại thiết bị" + (ViewBag.CurrentSort == "devicetype_desc" ? " ↑" : ViewBag.CurrentSort == "DeviceType" ? " ↓" : " ↓"),
+                                    "ManagerDevices",
+                                    new { sortOrder = ViewBag.DeviceTypeSortParam, searchString = ViewBag.CurrentFilter },
+                                    new { @class = "text-decoration-none text-light" })
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.DeviceID</td>
+                                    <td class="text-break">@item.DeviceName</td>
+                                    <td class="text-break">@item.Manufacturer</td>
+                                    <td class="text-break">@item.Model</td>
+                                    <td>@(item.PurchaseDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                    <td>@(item.WarrantyUntil?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                    <td>
+                                        <span class="badge bg-@(item.Status == "Hoạt động" ? "success" : "secondary")">
+                                            @item.Status
+                                        </span>
+                                    </td>
+                                    <td class="text-break">@item.Notes</td>
+                                    <td class="text-break">@item.TypeName</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center">Không có thiết bị nào.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@*modal them  thiết bị*@
+<div class="modal fade" id="NewDevicemodal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4" style="min-width: 800px; margin: auto;">
+            <div class="modal-header bg-primary text-white py-2 ">
+                <h5 class="modal-title fw-bold fs-6">
+                    <i class="bi bi-pc-display me-2 "></i>Thêm thiết bị
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <form id="newDeviceForm">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="detail-card bg-light p-3 rounded-3 h-100">
+                                <h6 class="text-primary mb-3 fw-bold border-bottom pb-2">Thông tin cơ bản</h6>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Tên thiết bị</label>
+                                    <input type="text" class="form-control" id="newDeviceName" name="DeviceName">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Loại thiết bị</label>
+                                    <p id="modalTypeName" class="fw-bold text-dark mb-0 "></p>
+                                    <select class="form-select" id="newTypeName" name="TypeName">
+                                        @if (ViewBag.DeviceTypeFilter != null)
+                                        {
+                                            foreach (var type in ViewBag.DeviceTypeFilter as List<string>)
+                                            {
+                                                <option value="@type">@type</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Trạng thái</label>
+                                    <select class="form-select " id="newStatus" name="Status">
+                                        <option value="Active">Active</option>
+                                        <option value="Maintenance">Maintenance</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-card bg-light p-3 rounded-3 h-100">
+                                <h6 class="text-primary mb-3 fw-bold border-bottom pb-2">Thông số kỹ thuật</h6>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Nhà sản xuất</label>
+                                    <input type="text" class="form-control " id="newManufacturer" name="Manufacturer">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Model</label>
+                                    <input type="text" class="form-control " id="newModel" name="Model">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Ngày mua</label>
+                                    <input type="date" class="form-control " id="newPurchaseDate" name="PurchaseDate">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Bảo hành đến</label>
+                                    <input type="date" class="form-control " id="newWarrantyUntil" name="WarrantyUntil">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 detail-card bg-light p-3 rounded-3">
+                        <h6 class="text-primary mb-3 fw-bold border-bottom pb-2">Thông tin bổ sung</h6>
+                        <div class="mb-2">
+                            <label class="form-label text-muted small mb-1">Ghi chú</label>
+                            <textarea class="form-control"
+                                      style="width: 100%; max-width: 100%; box-sizing: border-box; min-height: 100px; resize: vertical;"
+                                      id="newNotes"
+                                      name="Notes"
+                                      rows="3">
+                            </textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer bg-light py-2 px-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Đóng
+                </button>
+                <button type="button" class="btn btn-success" id="btnSaveNewDevice">
+                    <i class="bi bi-check-circle me-1"></i> Lưu thay đổi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal hiển thị chi tiết thiết bị -->
+<div class="modal fade" id="deviceDetailModal" tabindex="-1" aria-labelledby="deviceDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="deviceDetailModalLabel" style="color: white !important;">
+                    <i class="bi bi-pc-display me-2 text-white"></i>Chi tiết thiết bị
+                </h5>
+
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <form id="deviceEditForm">
+                    <input type="hidden" id="editDeviceId" name="DeviceID" />
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="detail-card bg-light p-3 rounded-3 h-100">
+                                <h6 class="text-primary mb-3 fw-bold border-bottom pb-2">Thông tin cơ bản</h6>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1 ">ID thiết bị</label>
+                                    <p id="modalDeviceId" class="fw-bold text-dark mb-0 "></p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Tên thiết bị</label>
+                                    <p id="modalDeviceName" class="fw-bold text-dark mb-0 view-mode"></p>
+                                    <input type="text" class="form-control edit-mode d-none" id="editDeviceName" name="DeviceName">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Loại thiết bị</label>
+                                    <p id="modalTypeName" class="fw-bold text-dark mb-0 view-mode"></p>
+                                    <select class="form-select edit-mode d-none" id="editTypeName" name="TypeName">
+                                        @if (ViewBag.DeviceTypeFilter != null)
+                                        {
+                                            foreach (var type in ViewBag.DeviceTypeFilter as List<string>)
+                                            {
+                                                <option value="@type">@type</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Trạng thái</label>
+                                    <p id="modalStatus" class="mb-0 view-mode">
+                                        <span class="badge rounded-pill"></span>
+                                    </p>
+                                    <select class="form-select edit-mode d-none" id="editStatus" name="Status">
+                                        <option value="Active">Active</option>
+                                        <option value="Maintenance">Maintenance</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-card bg-light p-3 rounded-3 h-100">
+                                <h6 class="text-primary mb-3 fw-bold border-bottom pb-2">Thông số kỹ thuật</h6>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Nhà sản xuất</label>
+                                    <p id="modalManufacturer" class="fw-bold text-dark mb-0 view-mode"></p>
+                                    <input type="text" class="form-control edit-mode d-none" id="editManufacturer" name="Manufacturer">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Model</label>
+                                    <p id="modalModel" class="fw-bold text-dark mb-0 view-mode"></p>
+                                    <input type="text" class="form-control edit-mode d-none" id="editModel" name="Model">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Ngày mua</label>
+                                    <p id="modalPurchaseDate" class="fw-bold text-dark mb-0 view-mode"></p>
+                                    <input type="date" class="form-control edit-mode d-none" id="editPurchaseDate" name="PurchaseDate">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small mb-1">Bảo hành đến</label>
+                                    <p id="modalWarrantyUntil" class="fw-bold text-dark mb-0 view-mode"></p>
+                                    <input type="date" class="form-control edit-mode d-none" id="editWarrantyUntil" name="WarrantyUntil">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 detail-card bg-light p-3 rounded-3">
+                        <h6 class="text-primary mb-3 fw-bold border-bottom pb-2">Thông tin bổ sung</h6>
+                        <div class="mb-2">
+                            <label class="form-label text-muted small mb-1">Ghi chú</label>
+                            <p id="modalNotes" class="fw-bold text-dark mb-0 view-mode"></p>
+                            <textarea class="form-control edit-mode d-none" id="editNotes" name="Notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Đóng
+                </button>
+                <button type="button" class="btn btn-primary" id="btnEditDevice">
+                    <i class="bi bi-pencil-square me-1"></i> Chỉnh sửa
+                </button>
+                <button type="button" class="btn btn-success d-none" id="btnSaveChanges">
+                    <i class="bi bi-check-circle me-1"></i> Lưu thay đổi
+                </button>
+                <button type="button" class="btn btn-danger" id="btnDeleteDevice">
+                    <i class="bi bi-trash me-1"></i> Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<style>
+    .modal-header .modal-title {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        color: #000 !important;
+    }
+
+    .bg-gradient-primary,
+    .bg-gradient-primary * {
+        color: white !important;
+    }
+
+    #btnDeleteDevice {
+        margin-left: auto;
+    }
+
+    .modal-footer {
+        justify-content: space-between; 
+    }
+</style>
+<script>
+        // Xử lý click vào dòng trong bảng
+        $('table tbody tr').click(function () {
+            var deviceId = $(this).find('td:eq(0)').text();
+            var deviceName = $(this).find('td:eq(1)').text();
+            var manufacturer = $(this).find('td:eq(2)').text();
+            var model = $(this).find('td:eq(3)').text();
+            var purchaseDate = $(this).find('td:eq(4)').text();
+            var warrantyUntil = $(this).find('td:eq(5)').text();
+            var status = $(this).find('td:eq(6) span').text().trim();
+            var notes = $(this).find('td:eq(7)').text();
+            var typeName = $(this).find('td:eq(8)').text();
+            // Điền dữ liệu vào modal (view mode)
+            $('#modalDeviceId').text(deviceId);
+            $('#modalDeviceName').text(deviceName);
+            $('#modalManufacturer').text(manufacturer);
+            $('#modalModel').text(model);
+            $('#modalPurchaseDate').text(purchaseDate);
+            $('#modalWarrantyUntil').text(warrantyUntil);
+            $('#modalNotes').text(notes);
+            $('#deviceDetailModal #modalTypeName').text(typeName || "N/A");
+            $('#editDeviceId').val(deviceId);
+
+            var $statusBadge = $('#modalStatus span');
+            $statusBadge.removeClass('bg-success bg-secondary bg-warning');
+            $statusBadge.text(status);
+
+            if (status === 'Hoạt động') {
+                $statusBadge.addClass('bg-success');
+            } else if (status === 'Ngừng hoạt động') {
+                $statusBadge.addClass('bg-secondary');
+            } else {
+                $statusBadge.addClass('bg-warning');
+            }
+
+            var modal = new bootstrap.Modal(document.getElementById('deviceDetailModal'));
+            modal.show();
+        });
+
+        $('#btnEditDevice').click(function () {
+            $('.view-mode').addClass('d-none');
+            $('.edit-mode').removeClass('d-none');
+
+            $('#editDeviceName').val($('#modalDeviceName').text().trim());
+            $('#editManufacturer').val($('#modalManufacturer').text().trim());
+            $('#editModel').val($('#modalModel').text().trim());
+            $('#editTypeName').val($('#deviceDetailModal #modalTypeName').text().trim());
+            $('#editNotes').val($('#modalNotes').text().trim());
+            $('#editStatus').val($('#modalStatus span').text().trim());
+
+            const purchaseDateText = $('#modalPurchaseDate').text().trim();
+            const warrantyDateText = $('#modalWarrantyUntil').text().trim();
+
+            if (purchaseDateText && purchaseDateText !== 'N/A') {
+                const purchaseDate = convertToDateInputFormat(purchaseDateText);
+                $('#editPurchaseDate').val(purchaseDate);
+            }
+
+            if (warrantyDateText && warrantyDateText !== 'N/A') {
+                const warrantyDate = convertToDateInputFormat(warrantyDateText);
+                $('#editWarrantyUntil').val(warrantyDate);
+            }
+
+            $(this).addClass('d-none');
+            $('#btnSaveChanges').removeClass('d-none');
+        });
+
+        $('#btnSaveChanges').click(function () {
+            const deviceId = $('#editDeviceId').val();
+            console.log(deviceId);
+
+            if (!deviceId) {
+                alert('Device ID is missing!');
+                return;
+            }
+
+            const deviceName = $('#editDeviceName').val();
+            const manufacturer = $('#editManufacturer').val();
+            const model = $('#editModel').val();
+            const purchaseDate = $('#editPurchaseDate').val();
+            const warrantyUntil = $('#editWarrantyUntil').val();
+            const status = $('#editStatus').val();
+            const notes = $('#editNotes').val();
+            const typeName = $('#editTypeName').val();
+
+            $('form[data-temp-edit-form]').remove();
+
+            const form = $('<form>')
+                .attr('method', 'post')
+                .attr('action', '@Url.Action("Edit", "Admin")')
+                .attr('data-temp-edit-form', 'true') 
+                .append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'DeviceID',
+                    value: deviceId
+                }))
+                .append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'DeviceName',
+                    value: deviceName
+                }))
+                .append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'Manufacturer',
+                    value: manufacturer
+                }))
+                .append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'Model',
+                    value: model
+                }))
+                .append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'PurchaseDate',
+                    value: purchaseDate || '' 
+                }))
+                .append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'WarrantyUntil',
+                    value: warrantyUntil || ''
+                }))
+                .append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'Status',
+                    value: status
+                }))
+                .append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'Notes',
+                    value: notes || '' 
+                }))
+                .append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'TypeName',
+                    value: typeName
+                }));
+
+            const antiForgeryToken = $('input[name="__RequestVerificationToken"]').first();
+            if (antiForgeryToken.length > 0) {
+                form.append(antiForgeryToken.clone());
+            } else {
+                console.warn('Anti-forgery token not found!');
+            }
+
+            form.appendTo('body');
+
+            if (confirm('Bạn muốn thay đổi không?')) {
+                try {
+                    form.submit();
+                } catch (error) {
+                    console.error('Form submission error:', error);
+                    alert('Có lỗi xảy ra khi gửi form. Vui lòng thử lại.');
+                }
+            }
+
+            setTimeout(function() {
+                form.remove();
+                $('#btnSaveChanges').addClass('d-none');
+                $('#btnEditDevice').removeClass('d-none');
+                $('.edit-mode').addClass('d-none');
+                $('.view-mode').removeClass('d-none');
+            }, 1000);
+        });
+
+        function convertToDateInputFormat(dateString) {
+            if (!dateString) return '';
+            const parts = dateString.split('/');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return '';
+        }
+
+        function formatDateDisplay(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        $('table tbody tr').hover(
+            function () {
+                $(this).css('cursor', 'pointer');
+                $(this).addClass('table-active');
+            },
+            function () {
+                $(this).removeClass('table-active');
+            }
+        );
+
+        $('#btnDeleteDevice').click(function () {
+            const deviceId = $('#editDeviceId').val();
+
+            if (confirm('Bạn chắc chắn muốn xóa thiết bị này?')) {
+                $.ajax({
+                    url: '@Url.Action("Delete", "Admin")',
+                    type: 'POST',
+                    data: {
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                        id: deviceId
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#deviceDetailModal').modal('hide');
+                            $(`tr[data-id="${deviceId}"]`).remove();
+                            alert('Xóa thành công!');
+                            location.reload();
+                        } else {
+                            alert('Lỗi: ' + response.message);
+                        }
+                    }
+                });
+            }
+        });
+
+        $('#btnSaveNewDevice').click(function () {
+            const newDeviceName = $('#newDeviceName').val().trim();
+            const newTypeName = $('#newTypeName').val().trim();
+            const newStatus = $('#newStatus').val().trim();
+            const newManufacturer = $('#newManufacturer').val().trim();
+            const newModel = $('#newModel').val().trim();
+            const newPurchaseDate = $('#newPurchaseDate').val();
+            const newWarrantyUntil = $('#newWarrantyUntil').val();
+            const newNotes = $('#newNotes').val().trim();
+            if (!newDeviceName) {
+                alert("Vui lòng nhập tên thiết bị!");
+                return;
+            }
+            if (!newTypeName) {
+                alert("Vui lòng nhập tên loại thiết bị!");
+                return;
+            }
+
+            if (confirm("Bạn muốn thêm loại thiết bị này?")) {
+                $.ajax({
+                url: '@Url.Action("AddDevice", "Admin")',
+                type: 'POST',
+                data: {
+                    NewDeviceName: newDeviceName,
+                    NewTypeName: newTypeName,
+                    NewStatus: newStatus,
+                    NewManufacturer: newManufacturer,
+                    NewModel: newModel,
+                    NewPurchaseDate: newPurchaseDate,
+                    NewWarrantyUntil: newWarrantyUntil,
+                    NewNotes: newNotes,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert("Lỗi khi thêm loại thiết bị!");
+                }
+            });
+            }
+        });
+
+</script>
+
+

@@ -1,0 +1,151 @@
+﻿@model PagedList.IPagedList<qlthietbi_2.Models.LoginHistoryViewModel>
+@using PagedList.Mvc
+
+@{
+    ViewBag.Title = "Lịch sử đăng nhập/đăng xuất";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+<style>
+    .pagination {
+        display: inline-flex;
+        margin: 10px 0;
+    }
+    .page-item {
+        margin: 0 3px;
+    }
+    .page-item.active .page-link {
+        background-color: #4e73df;
+        border-color: #4e73df;
+        color: white;
+    }
+    .page-link {
+        color: #4e73df;
+        border: 1px solid #ddd;
+        padding: 6px 12px;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+    .page-link:hover {
+        background-color: #e9ecef;
+        border-color: #ddd;
+        color: #2c3e50;
+    }
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #ddd;
+    }
+    .status-active {
+        color: #1cc88a;
+        font-weight: bold;
+    }
+    .status-inactive {
+        color: #e74a3b;
+    }
+    .duration-cell {
+        font-family: monospace;
+    }
+</style>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 bg-primary text-white">
+        <h5 class="m-0 font-weight-bold">
+            <i class="fas fa-history"></i> Lịch sử đăng nhập/đăng xuất
+        </h5>
+    </div>
+    
+    <div class="card-body">
+        @using (Html.BeginForm("ManagerLoginHistory", "Admin", FormMethod.Get))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="searchString"
+                               value="@ViewBag.CurrentFilter" placeholder="Tìm theo tên người dùng...">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th>
+                            @Html.ActionLink("Tên người dùng", "ManagerLoginHistory",
+                        new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
+                    </th>
+                    <th>
+                        @Html.ActionLink("Thời gian đăng nhập", "ManagerLoginHistory",
+                    new { sortOrder = ViewBag.DateSortParm, currentFilter = ViewBag.CurrentFilter })
+                </th>
+                <th>Thời gian đăng xuất</th>
+                <th>
+                    @Html.ActionLink("Thời lượng", "ManagerLoginHistory",
+                new { sortOrder = ViewBag.DurationSortParm, currentFilter = ViewBag.CurrentFilter })
+            </th>
+            <th>Địa chỉ IP</th>
+            <th>Trạng thái</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="7" class="text-center text-muted">Không có dữ liệu</td>
+            </tr>
+        }
+        else
+        {
+            int count = (Model.PageNumber - 1) * Model.PageSize + 1;
+            foreach (var log in Model)
+            {
+                <tr>
+                    <td class="text-center">@(count++)</td>
+                    <td>@log.Username</td>
+                    <td>@log.LoginTime.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                    <td>@(log.LogoutTime?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
+                    <td class="duration-cell">@log.DurationDisplay</td>
+                    <td class="@(log.IPAddress == "::1" ? "text-info" : "text-muted")">
+                        @(string.IsNullOrEmpty(log.IPAddress) ? "N/A" : log.IPAddress)
+                    </td>
+                    <td>
+                        <span class="@(log.Status == "Đang hoạt động" ? "status-active" : "status-inactive")">
+                            @log.Status
+                        </span>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+    </table>
+
+    <!-- Phân trang -->
+    <div class="row">
+        <div class="col-md-12 text-center">
+            @Html.PagedListPager(Model, page => Url.Action("ManagerLoginHistory", new { page }),
+            new PagedListRenderOptions
+            {
+                DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                MaximumPageNumbersToDisplay = 5,
+                DisplayEllipsesWhenNotShowingAllPageNumbers = true
+            })
+        </div>
+    </div>
+    </div>
+    </div>
+</div>

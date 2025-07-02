@@ -1,0 +1,34 @@
+﻿@model IEnumerable<qlthietbi_2.DeviceType>
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2 class="mt-4 mb-4 ">PHÂN LOẠI THIẾT BỊ</h2>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<table class="table table-striped table-bordered table-hover">
+    <thead class="table-dark" >
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.First().TypeName)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Description)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.TypeName</td>
+                    <td>@item.Description</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3" class="text-center text-muted">Không có dữ liệu</td>
+            </tr>
+        }
+    </tbody>
+</table>

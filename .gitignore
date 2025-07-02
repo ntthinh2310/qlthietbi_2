@@ -1,0 +1,35 @@
+﻿# Thư mục build
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio files
+.vs/
+*.dbmdl
+*.dbproj.schemaview
+*.pdb
+*.cache
+*.log
+
+# Web specific
+packages/
+*.Publish.xml
+*.pubxml
+*.publishsettings
+*.config.user
+
+# Tệp tạm và hệ thống
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+Thumbs.db
+
+# Tệp dữ liệu không cần thiết
+*.edmx.diagram
+*.ldb
+*.mdf
+*.ldf
